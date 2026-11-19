@@ -1,0 +1,38 @@
+{
+  "name": "pi-agents-local",
+  "version": "0.1.0",
+  "description": "Pi extension that loads AGENTS.local.md (personal instructions) next to every AGENTS.md Pi loads",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-extension",
+    "agents-md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cardmage/pi-agents-local.git"
+  },
+  "homepage": "https://github.com/cardmage/pi-agents-local#readme",
+  "bugs": {
+    "url": "https://github.com/cardmage/pi-agents-local/issues"
+  },
+  "files": [
+    "extensions/",
+    "src/",
+    "README.md",
+    "README.ko.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\""
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/agents-local.ts"
+    ]
+  }
+}
