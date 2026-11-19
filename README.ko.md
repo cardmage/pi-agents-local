@@ -50,7 +50,7 @@ Pi 1.5.2에서 확인했습니다.
 }
 ```
 
-자체 `subagentOnlyExtensions`를 설정한 에이전트는 이 기본값을 쓰지 않으므로, 그 목록에도 경로를 추가해야 합니다. pi-subagents 0.89.1에서 확인했습니다.
+pi-subagents 0.89.1에서 확인했습니다. pi-subagents 문서에 따르면 자체 `subagentOnlyExtensions`를 설정한 에이전트는 이 기본값을 쓰지 않으므로, 그 목록에도 경로를 추가해야 합니다.
 
 ### Pi 시작 화면에 표시되지 않음
 

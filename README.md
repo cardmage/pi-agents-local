@@ -50,7 +50,7 @@ To load this extension in foreground children too, add its installed path to `~/
 }
 ```
 
-An agent that sets its own `subagentOnlyExtensions` does not use this default; add the path there as well. Checked with pi-subagents 0.89.1.
+Checked with pi-subagents 0.89.1. According to the pi-subagents documentation, an agent that sets its own `subagentOnlyExtensions` does not use this default, so add the path there as well.
 
 ### Not listed in Pi's startup header
 
