@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 
 export interface ContextFile {
@@ -26,23 +26,35 @@ export function readLocalFile(dir: string): ContextFile | undefined {
 	return { path, content: readFileSync(path, "utf-8").replace(/^\uFEFF/, "") };
 }
 
+/** The path with symlinks resolved, so that one file reached through two paths compares equal. */
+function realPath(path: string): string {
+	try {
+		return realpathSync(path);
+	} catch {
+		return path;
+	}
+}
+
 /**
  * Insert each directory's local file right after the context file Pi loaded from it.
+ * A local file reached through more than one path (symlinks) is added once.
  * Does not modify `contextFiles`.
  */
 export function withLocalFiles(
 	contextFiles: readonly ContextFile[],
 	load: LocalFileLoader,
 ): { files: ContextFile[]; added: LocalAddition[] } {
-	const present = new Set(contextFiles.map((file) => file.path));
+	const present = new Set(contextFiles.map((file) => realPath(file.path)));
 	const files: ContextFile[] = [];
 	const added: LocalAddition[] = [];
 	for (const file of contextFiles) {
 		files.push(file);
 		if (!CONTEXT_FILE_NAME.test(basename(file.path))) continue;
 		const local = load(dirname(file.path));
-		if (!local || present.has(local.path)) continue;
-		present.add(local.path);
+		if (!local) continue;
+		const localRealPath = realPath(local.path);
+		if (present.has(localRealPath)) continue;
+		present.add(localRealPath);
 		files.push(local);
 		added.push({ sibling: file, local });
 	}

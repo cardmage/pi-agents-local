@@ -9,7 +9,7 @@
 
 import assert from "node:assert/strict";
 import { type ChildProcessWithoutNullStreams, execSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -204,6 +204,17 @@ describe("pi CLI with pi-agents-local", { skip: piCli ? false : "pi CLI not foun
 		const prompt = systemPrompt(await printRun(withExtension, sub()));
 		assertInOrder(prompt, ["GLOBAL-TEAM", "GLOBAL-MINE", "ROOT-OVERRIDE", "ROOT-MINE", "SUB-CLAUDE", "SUB-MINE"]);
 		assert.equal(count(prompt, "ROOT-TEAM"), 0);
+	});
+
+	it("adds a local file once when pi reaches its directory through two paths", async () => {
+		// The agent directory is a link to the directory pi runs in, so pi loads that directory's
+		// AGENTS.md under both paths. A junction on Windows, where plain symlinks need extra privileges.
+		const rules = agentDir;
+		agentDir = join(root, "agent-link");
+		symlinkSync(rules, agentDir, "junction");
+		const prompt = systemPrompt(await printRun(withExtension, rules));
+		assert.equal(count(prompt, "GLOBAL-TEAM"), 2, "pi loaded AGENTS.md under both paths");
+		assert.equal(count(prompt, "GLOBAL-MINE"), 1);
 	});
 
 	it("loads as a pi package listed in settings.json", async () => {

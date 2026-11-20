@@ -29,6 +29,7 @@ Pi 1.5.2에서 확인했습니다.
 
 - Pi가 로드한 컨텍스트 파일(`AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`)마다, 같은 폴더의 `AGENTS.local.md`를 바로 뒤에 넣습니다. agent 디렉터리(`~/.pi/agent`), 작업 디렉터리, 그 상위 디렉터리에 모두 적용됩니다.
 - Pi가 그 폴더의 컨텍스트 파일을 로드하지 않았으면 `AGENTS.local.md`도 넣지 않습니다. 그래서 `AGENTS.md` 없이 `AGENTS.local.md`만 있는 폴더, `--no-context-files`로 실행한 경우, 다른 확장이 컨텍스트 파일을 뺀 경우에는 들어가지 않습니다.
+- 심볼릭 링크 때문에 같은 `AGENTS.local.md`가 두 경로로 잡혀도 한 번만 넣습니다.
 - `AGENTS.md`와 마찬가지로 세션마다 한 번 읽습니다. 수정한 내용은 `/reload` 하거나 새 세션을 시작하면 반영됩니다.
 - `/agents-local` 명령으로 추가된 파일을 확인할 수 있습니다.
 

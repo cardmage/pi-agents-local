@@ -29,6 +29,7 @@ Checked with Pi 1.5.2.
 
 - For every context file Pi loaded (`AGENTS.md`, `AGENTS.override.md`, `CLAUDE.md`), the `AGENTS.local.md` in the same folder is added right after it. This applies to the agent directory (`~/.pi/agent`), the working directory, and its parent directories.
 - If Pi did not load a context file from a folder, the `AGENTS.local.md` there is not added either. So it is left out in a folder that has `AGENTS.local.md` but no `AGENTS.md`, when Pi runs with `--no-context-files`, and when another extension removes the context files.
+- An `AGENTS.local.md` that is reached through more than one path (a symlink and its target) is added once.
 - Like `AGENTS.md`, it is read once per session. Run `/reload` or start a new session to pick up edits.
 - `/agents-local` shows the files that were added.
 

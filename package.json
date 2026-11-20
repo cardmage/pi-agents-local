@@ -1,6 +1,6 @@
 {
   "name": "@cardmage/pi-agents-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pi extension that loads AGENTS.local.md (personal instructions) next to every AGENTS.md Pi loads",
   "type": "module",
   "keywords": [

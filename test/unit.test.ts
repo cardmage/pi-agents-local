@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, it } from "node:test";
@@ -84,6 +84,57 @@ describe("withLocalFiles", () => {
 		assert.deepEqual(withLocalFiles(input, load), { files: input, added: [] });
 		const once = withLocalFiles([root, pkg], load).files;
 		assert.deepEqual(withLocalFiles(once, load), { files: once, added: [] });
+	});
+});
+
+describe("withLocalFiles with one file reached through two paths", () => {
+	let root: string;
+	let rules: string;
+	beforeEach(() => {
+		root = mkdtempSync(join(tmpdir(), "agents-local-unit-"));
+		rules = join(root, "rules");
+		mkdirSync(rules);
+		writeFileSync(join(rules, "AGENTS.md"), "team");
+		writeFileSync(join(rules, "AGENTS.local.md"), "mine");
+	});
+	afterEach(() => {
+		rmSync(root, { recursive: true, force: true });
+	});
+
+	const contextFile = (dir: string): ContextFile => ({ path: join(dir, "AGENTS.md"), content: "team" });
+	const localFile = (dir: string): ContextFile => ({ path: join(dir, "AGENTS.local.md"), content: "mine" });
+
+	it("adds a local file once when its directory is also reached through a link", () => {
+		const agent = join(root, "agent");
+		// A junction on Windows, where plain symlinks need extra privileges; a symlink elsewhere.
+		symlinkSync(rules, agent, "junction");
+		const { files, added } = withLocalFiles([contextFile(agent), contextFile(rules)], readLocalFile);
+		assert.deepEqual(files, [contextFile(agent), localFile(agent), contextFile(rules)]);
+		assert.equal(added.length, 1);
+	});
+
+	it("adds a local file once when another directory has a symlink to it", (t) => {
+		const agent = join(root, "agent");
+		mkdirSync(agent);
+		writeFileSync(join(agent, "AGENTS.md"), "global");
+		try {
+			symlinkSync(join(rules, "AGENTS.local.md"), join(agent, "AGENTS.local.md"), "file");
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "EPERM") throw error;
+			t.skip("creating a file symlink is not permitted here");
+			return;
+		}
+		const global: ContextFile = { path: join(agent, "AGENTS.md"), content: "global" };
+		const { files, added } = withLocalFiles([global, contextFile(rules)], readLocalFile);
+		assert.deepEqual(files, [global, localFile(agent), contextFile(rules)]);
+		assert.equal(added.length, 1);
+	});
+
+	it("does not add a local file that is already present under its other path", () => {
+		const agent = join(root, "agent");
+		symlinkSync(rules, agent, "junction");
+		const input = [contextFile(agent), localFile(rules)];
+		assert.deepEqual(withLocalFiles(input, readLocalFile), { files: input, added: [] });
 	});
 });
 
